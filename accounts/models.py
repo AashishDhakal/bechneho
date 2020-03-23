@@ -1,102 +1,86 @@
-from __future__ import unicode_literals
+from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import PermissionsMixin
+from django.core.mail import send_mail
 from django.db import models
-from django.core.validators import RegexValidator
-from django.contrib.auth.models import AbstractBaseUser,BaseUserManager
-from django.db.models import Q
-from django.db.models.signals import post_save,pre_save
-from django.dispatch import receiver
-from rest_framework.authtoken.models import Token
+from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
 
-import random
-import os
-import requests
 
 class UserManager(BaseUserManager):
-    def create_user(self,phone,password=None,is_staff=False,is_active=True,is_admin=False):
-        if not phone:
-            raise ValueError("User must have a phone number")
-        if not password:
-            raise ValueError("User must have a password")
+    use_in_migrations = True
 
-        user_obj = self.model(phone=phone)
-        user_obj.set_password(password)
-        user_obj.admin = is_admin
-        user_obj.staff = is_staff
-        user_obj.active = is_active
-        user_obj.save(using=self._db)
-        return user_obj
-
-    def create_staffuser(self,phone,password=None):
-        user = self.create_user(
-            phone,
-            password=password,
-            is_staff=True,
-        )
+    def _create_user(self, email, password, **extra_fields):
+        """
+        Create and save a user with the given username, email, and password.
+        """
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
         return user
 
-    def create_superuser(self,phone,password=None):
-        user = self.create_user(
-            phone,
-            password=password,
-            is_staff=True,
-            is_admin=True,
-        )
-        return user
+    def create_user(self, email=None, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', False)
+        extra_fields.setdefault('is_superuser', False)
+        return self._create_user(email, password, **extra_fields)
+
+    def create_superuser(self, email, password, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self._create_user(email, password, **extra_fields)
 
 
-class User(AbstractBaseUser):
-    phone_regex = RegexValidator(regex=r'^\+?1?\d{9,14}$',
-                                 message="Phone number must be entered with the area code format like +977980000000000")
-    phone = models.CharField(validators=[phone_regex], max_length=17, unique=True)
-    name = models.CharField(max_length=20,null=True,blank=True)
-    active = models.BooleanField(default=False)
-    staff = models.BooleanField(default=False)
-    admin = models.BooleanField(default=False)
-
-    USERNAME_FIELD = 'phone'
-    REQUIRED_FIELDS = []
+class User(AbstractBaseUser, PermissionsMixin):
+    first_name = models.CharField(_('first name'), max_length=30, blank=True)
+    last_name = models.CharField(_('last name'), max_length=150, blank=True)
+    email = models.EmailField(_('email address'), unique=True)
+    mobile = models.CharField(max_length=20, null=True, blank=True)
+    firebase_id = models.CharField(max_length=50,null=True,blank=True)
+    is_staff = models.BooleanField(
+        _('staff status'),
+        default=False,
+        help_text=_('Designates whether the user can log into this admin site.'),
+    )
+    is_active = models.BooleanField(
+        _('active'),
+        default=True,
+        help_text=_(
+            'Designates whether this user should be treated as active. '
+            'Unselect this instead of deleting accounts.'
+        ),
+    )
+    date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
 
     objects = UserManager()
 
-    def __str__(self):
-        return self.phone
+    EMAIL_FIELD = 'email'
+    USERNAME_FIELD = 'email'
+
+    class Meta:
+        verbose_name = _('user')
+        verbose_name_plural = _('user')
+
+    def clean(self):
+        super().clean()
+        self.email = self.__class__.objects.normalize_email(self.email)
 
     def get_full_name(self):
-        if self.name:
-            return self.name
-        else:
-            return self.phone
+        """
+        Return the first_name plus the last_name, with a space in between.
+        """
+        full_name = '%s %s' % (self.first_name, self.last_name)
+        return full_name.strip()
 
     def get_short_name(self):
-        return self.phone
+        """Return the short name for the user."""
+        return self.first_name
 
-    def has_perm(self,perm,obj=None):
-        return True
-
-    def has_module_perms(self,app_label):
-        return True
-
-    @property
-    def is_staff(self):
-        return self.staff
-
-    @property
-    def is_admin(self):
-        return self.admin
-
-    @property
-    def is_active(self):
-        return self.active
-
-
-
-
-class PhoneOTP(models.Model):
-    phone_regex = RegexValidator(regex= r'^\+?1?\d{9,14}$',message="Phone number must be entered with the area code format like +977980000000000")
-    phone = models.CharField(validators=[phone_regex],max_length=17,unique=True)
-    otp = models.CharField(max_length=9,blank=True,null=True)
-    count = models.IntegerField(default=0,help_text="Number of times otp is sent")
-    validated = models.BooleanField(default=False,help_text="If it is true user hava validated OTP successfully")
-
-    def __str__(self):
-        return str(self.phone) + 'is sent' + str(self.otp)
+    def email_user(self, subject, message, from_email=None, **kwargs):
+        """Send an email to this user."""
+        send_mail(subject, message, from_email, [self.email], **kwargs)

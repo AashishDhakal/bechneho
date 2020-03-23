@@ -2,6 +2,7 @@ from django.shortcuts import render,get_object_or_404
 from rest_framework.generics import CreateAPIView,ListAPIView
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.viewsets import ModelViewSet
 from .models import *
 from .serializers import *
 from rest_framework.response import Response
@@ -18,6 +19,18 @@ class ImageCreate(APIView):
             return Response(file_serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class CategoryViewset(ModelViewSet):
+    serializer_class = CategorySerializer
+    queryset = Category.objects.all()
+
+class SubCategoryViewset(ModelViewSet):
+    serializer_class = SubCategorySerializer
+    queryset = SubCategory.objects.all()
+
+class AdvertisementViewset(ModelViewSet):
+    serializer_class = AdvertisementSerializer
+    queryset = Advertisement.objects.all()
 
 class CategoryListView(ListAPIView):
     serializer_class = CategorySerializer
