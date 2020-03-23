@@ -14,7 +14,8 @@ import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-STATIC_ROOT = os.path.join(BASE_DIR,"static")
+STATIC_DIR = os.path.join(BASE_DIR,"static")
+TEMPLATE_DIR = os.path.join(BASE_DIR,"templates")
 MEDIA_ROOT = os.path.join(BASE_DIR,"media")
 
 
@@ -45,15 +46,14 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'marketplace',
     'chat',
+    'rest_framework_swagger',
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
-    'DEFAULT_RENDERER_CLASSES': (
-         'rest_framework.renderers.JSONRenderer',
-     )
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
 }
 
 MIDDLEWARE = [
@@ -71,7 +71,7 @@ ROOT_URLCONF = 'BH.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [TEMPLATE_DIR,],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -135,6 +135,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
+
+STATICFILES_DIRS = [
+    STATIC_DIR,
+]
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 

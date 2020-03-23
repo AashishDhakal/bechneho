@@ -18,6 +18,7 @@ from django.urls import path,include
 from django.conf.urls.static import static
 from django.conf import settings
 from marketplace.views import ImageCreate
+from accounts.views import SwaggerView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,4 +26,5 @@ urlpatterns = [
     path('market/',include('marketplace.urls')),
     path('fileupload/',ImageCreate.as_view(),name="fileupload"),
     path('chat/',include('chat.urls'),name='chat'),
-] + static(settings.MEDIA_URL,document_root = settings.MEDIA_ROOT)
+    path('docs/', SwaggerView.as_view()),
+    ] + static(settings.MEDIA_URL,document_root = settings.MEDIA_ROOT)

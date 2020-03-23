@@ -2,16 +2,16 @@ from django.shortcuts import render
 from .serializers import *
 from rest_framework.generics import CreateAPIView,ListAPIView
 from rest_framework.permissions import IsAuthenticated
-from django.core.exceptions import ValidationError
-from rest_framework.views import APIView
-from rest_framework import renderers
-from rest_framework import parsers
-from rest_framework.response import Response
-from rest_framework.authtoken.models import Token
-from django.shortcuts import render,get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import *
+from rest_framework import viewsets, exceptions
+from rest_framework.renderers import CoreJSONRenderer
+from rest_framework.response import Response
+from rest_framework.schemas import SchemaGenerator
+from rest_framework.views import APIView
+from rest_framework_swagger import renderers
+from rest_framework_swagger.views import get_swagger_view
 import requests
 
 
@@ -165,3 +165,32 @@ class Register(APIView):
                     'status':False,
                     'detail':"Please verify phone first"
                 })
+
+class SwaggerRenderer(renderers.SwaggerUIRenderer):
+    template = 'swagger_template.html'
+
+
+class SwaggerView(APIView):
+    _ignore_model_permissions = True
+    exclude_from_schema = True
+    renderer_classes = [
+        CoreJSONRenderer,
+        renderers.OpenAPIRenderer,
+        SwaggerRenderer
+    ]
+
+    def get(self, request):
+        generator = SchemaGenerator(
+            title='Pastebin API',
+            url=None,
+            patterns=None,
+            urlconf=None
+        )
+        schema = generator.get_schema(request=request)
+
+        if not schema:
+            raise exceptions.ValidationError(
+                'The schema generator did not return a schema Document'
+            )
+
+        return Response(schema, template_name='swagger_template2.html')
