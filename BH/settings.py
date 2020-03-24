@@ -28,7 +28,7 @@ SECRET_KEY = 'tcb%-q2rq0+5#=tkd!d+__j-=u5ijp=8*#g6$kipwi9x#a9kl='
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1','68a99010.ngrok.io']
+ALLOWED_HOSTS = ['127.0.0.1','bechneho.com']
 
 
 # Application definition
@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'accounts',
-    'phonenumber_field',
     'rest_framework',
     'rest_framework.authtoken',
     'marketplace',
