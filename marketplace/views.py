@@ -1,5 +1,5 @@
 from django.shortcuts import render,get_object_or_404
-from rest_framework.generics import CreateAPIView,ListAPIView
+from rest_framework.generics import CreateAPIView,ListAPIView,DestroyAPIView,UpdateAPIView
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
@@ -23,6 +23,7 @@ class ImageCreate(APIView):
             return Response(file_serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class CategoryListView(ListAPIView):
     '''
@@ -155,3 +156,21 @@ class ListUserAdvertisementView(ListAPIView):
     def get_queryset(self):
         userid = self.request.query_params.get('id')
         return Advertisement.objects.filter(user_id=userid)
+
+
+class AdvertisementViewset(ModelViewSet):
+    """
+    Updates advertisement on put request and deletes advertisement on delete request
+    You dont need to pass user id to get advertisement,but need to pass authentication token header.For updating and deleting
+    a advertisement,you need to pass authentication token header and the corresponding advertisement id as well.
+    """
+
+    serializer_class = AdvertisementSerializer
+    permission_classes = [IsAuthenticated,]
+    http_method_names = ['put','delete','head']
+    queryset = Advertisement.objects.none()
+
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return Advertisement.objects.all()
+        return Advertisement.objects.filter(pk=self.request.user.pk)
