@@ -20,18 +20,6 @@ class ImageCreate(APIView):
         else:
             return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class CategoryViewset(ModelViewSet):
-    serializer_class = CategorySerializer
-    queryset = Category.objects.all()
-
-class SubCategoryViewset(ModelViewSet):
-    serializer_class = SubCategorySerializer
-    queryset = SubCategory.objects.all()
-
-class AdvertisementViewset(ModelViewSet):
-    serializer_class = AdvertisementSerializer
-    queryset = Advertisement.objects.all()
-
 class CategoryListView(ListAPIView):
     serializer_class = CategorySerializer
     def get_queryset(self):
