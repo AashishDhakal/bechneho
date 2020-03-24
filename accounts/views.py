@@ -7,6 +7,8 @@ from rest_framework_swagger import renderers
 from rest_framework.generics import ListAPIView,CreateAPIView,RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_swagger.views import get_swagger_view
+from django.shortcuts import get_object_or_404
+from rest_framework.decorators import action
 
 from .models import User
 from .permissions import StaffPermission
@@ -23,13 +25,29 @@ class UserAPIViewset(viewsets.ModelViewSet):
             return User.objects.all()
         return User.objects.filter(pk=self.request.user.pk)
 
-class UserProfile(RetrieveUpdateDestroyAPIView):
+
+class UserProfile(viewsets.ModelViewSet):
+    """
+    Return a user profile on get request,updates user profile on put request and deletes user profile on delete request
+    You dont need to pass user id to get profile,but need to pass authentication token header.For updating and deleting
+    a user profile,you need to pass authentication token header and the corresponding user id as well.
+    """
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated,]
+    http_method_names = ['get','put','delete','head']
+    queryset = User.objects.none()
+
     def get_queryset(self):
-        return User.objects.get(id=self.request.user.id)
+        if self.request.user.is_staff:
+            return User.objects.all()
+        return User.objects.filter(pk=self.request.user.pk)
+
+
 
 class Register(CreateAPIView):
+    '''
+    This endpoint is used to register a new user.You need to create a post request with all the data in body.
+    '''
     serializer_class = UserSerializer
 
     def perform_create(self, serializer):

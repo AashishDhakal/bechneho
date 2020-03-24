@@ -10,6 +10,10 @@ from rest_framework import status
 from rest_framework.parsers import FileUploadParser
 
 class ImageCreate(APIView):
+    '''
+    This endpoint is used to create a fileupload.You will post a file to this endpoint's body and in response you will
+    get the url to the file/image.This link will be now passed to those fields in database where image or files are required.
+    '''
     parser_class = (FileUploadParser,)
     def post(self, request, *args, **kwargs):
         file_serializer = ImageSerializer(data=self.request.data)
@@ -20,35 +24,39 @@ class ImageCreate(APIView):
         else:
             return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class CategoryViewset(ModelViewSet):
-    serializer_class = CategorySerializer
-    queryset = Category.objects.all()
-
-class SubCategoryViewset(ModelViewSet):
-    serializer_class = SubCategorySerializer
-    queryset = SubCategory.objects.all()
-
-class AdvertisementViewset(ModelViewSet):
-    serializer_class = AdvertisementSerializer
-    queryset = Advertisement.objects.all()
-
 class CategoryListView(ListAPIView):
+    '''
+    This enpoint list all the categories.
+    '''
     serializer_class = CategorySerializer
     def get_queryset(self):
         return Category.objects.all()
 
 class SubCategoryListView(ListAPIView):
+    '''
+    This endpoint lists subcategories under a category.
+    You should pass category slug as query parameter.
+    :parameter
+    -slug
+    '''
     serializer_class = SubCategorySerializer
     def get_queryset(self):
         return SubCategory.objects.filter(category__slug=self.request.query_params.get('slug'))
 
 class AllSubCategoryListView(ListAPIView):
+    '''
+    This endpoint lists all the subcategories
+    '''
     serializer_class = SubCategorySerializer
 
     def get_queryset(self):
         return SubCategory.objects.all()
 
 class CreateAdvertisementView(CreateAPIView):
+    '''
+    This endpoint is for creating a post/product or advertisement.A user needs to be logged in to create a post.So,its
+    mandatory to pass in Authentication header while posting data.
+    '''
     serializer_class = AdvertisementSerializer
     permission_classes = [IsAuthenticated,]
 
@@ -56,6 +64,12 @@ class CreateAdvertisementView(CreateAPIView):
         serializer.save(user=self.request.user)
 
 class AdvertisementListView(ListAPIView):
+    '''
+    This lists all the advertisements on a particular subcategory.
+    You need to pass subcategory slug as query parameter.
+    :parameter
+    -subcategory_slug
+    '''
     serializer_class = AdvertisementSerializer
 
     def get_queryset(self):
@@ -63,6 +77,11 @@ class AdvertisementListView(ListAPIView):
         return Advertisement.objects.filter(subcategory__slug=subcategory)
 
 class AdvertisementDetailView(ListAPIView):
+    '''
+    This is for detail listing a post/advertisement.Pass in post slug as a query parameter.
+    :parameter
+    -slug
+    '''
     serializer_class = AdvertisementSerializer
 
     def get_serializer_context(self):
@@ -80,6 +99,9 @@ class AdvertisementDetailView(ListAPIView):
         return queryset
 
 class MyAdvertisementsView(ListAPIView):
+    '''
+    This lists advertisements posted by logged in user.You need to pass authentication header.
+    '''
     serializer_class = AdvertisementSerializer
     permission_classes = [IsAuthenticated,]
 
@@ -87,30 +109,47 @@ class MyAdvertisementsView(ListAPIView):
         return Advertisement.objects.filter(user=self.request.user)
 
 class FeaturedAdvertisementsView(ListAPIView):
+    '''
+    Lists featured advertisements
+    '''
     serializer_class = AdvertisementSerializer
 
     def get_queryset(self):
         return Advertisement.objects.filter(featured='y')
 
 class RecentAdvertisementsView(ListAPIView):
+    '''
+    Lists recent advertisements
+    '''
     serializer_class = AdvertisementSerializer
 
     def get_queryset(self):
         return Advertisement.objects.order_by('-published_at')
 
 class PopularAdvertisementsView(ListAPIView):
+    '''
+    List popular advertisements
+    '''
     serializer_class = AdvertisementSerializer
 
     def get_queryset(self):
         return Advertisement.objects.order_by('-views')
 
 class AllAdvertisementsView(ListAPIView):
+    '''
+    List all the advertisements
+    '''
     serializer_class = AdvertisementSerializer
 
     def get_queryset(self):
         return Advertisement.objects.all()
 
 class ListUserAdvertisementView(ListAPIView):
+    '''
+    Lists advertisements posted by a particular user.You need to pass user id to get his/her posted ads.
+    :parameter
+    -id
+    '''
     serializer_class = AdvertisementSerializer
 
     def get_queryset(self):

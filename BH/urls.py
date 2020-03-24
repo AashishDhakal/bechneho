@@ -26,6 +26,9 @@ from accounts.views import *
 
 router = DefaultRouter()
 
+router.register('api/accounts/userprofile',UserProfile)
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/accounts/',include('accounts.urls')),
