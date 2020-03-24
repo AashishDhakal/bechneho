@@ -26,11 +26,6 @@ from accounts.views import *
 
 router = DefaultRouter()
 
-router.register('api/market/category',CategoryViewset)
-router.register('api/market/subcategory',SubCategoryViewset)
-router.register('api/market/advertisement',SubCategoryViewset)
-
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/accounts/',include('accounts.urls')),
