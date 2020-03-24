@@ -29,6 +29,7 @@ router = DefaultRouter()
 router.register('api/market/category',CategoryViewset)
 router.register('api/market/subcategory',SubCategoryViewset)
 router.register('api/market/advertisement',SubCategoryViewset)
+router.register('api/accounts/userprofile',UserProfile)
 
 
 urlpatterns = [
