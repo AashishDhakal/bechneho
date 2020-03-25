@@ -1,50 +1,66 @@
-from django.shortcuts import render
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.models import User
-from django.http.response import JsonResponse, HttpResponse
-from django.shortcuts import render, redirect
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework.parsers import JSONParser
-from .models import Message
-from .serializers import MessageSerializer,MessageUserSerializer,CreateMessageSerializer
+from .models import Message,ChatDialog
+from .serializers import MessageSerializer,CreateMessageSerializer,ChatDialogSerializer
 from rest_framework.generics import ListAPIView,CreateAPIView
+from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from django.db.models import Q
-from accounts.serializers import UserSerializer
-from django.db.models.signals import post_save
 from django.core.mail import send_mail
 from django.conf import settings
+from django.db.models import Q
+from datetime import datetime
+from rest_framework.response import Response
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 class MessageDetails(ListAPIView):
+    '''
+    This endpoint lists all the messages ordered by time,you need to pass chatdialog id to list down all the messages and requesting user must be
+    authenticated as well.So,pass authentication token as header and chatdialog id as query parameter.
+    :parameter
+    chatdialog_id
+    '''
     serializer_class = MessageSerializer
     permission_classes = [IsAuthenticated,]
     def get_queryset(self):
-        receiver_id = self.request.query_params.get("receiver_id")
-        sender_id = self.request.user.id
-        return Message.objects.filter(sender_id=sender_id,receiver_id=receiver_id) | Message.objects.filter(sender_id=receiver_id,receiver_id=sender_id)
+        chatdialog = self.request.query_params.get("chatdialog_id")
+        return Message.objects.filter(chatdialog_id=chatdialog)
 
-class CreateMessage(CreateAPIView):
-    serializer_class = CreateMessageSerializer
+class CreateMessage(APIView):
+    '''
+    This endpoint creates messages.Pass authentication token as authorization header.
+    '''
     permission_classes = [IsAuthenticated,]
 
-    def perform_create(self, serializer):
-        serializer.save(sender=self.request.user)
-        receiver = self.request.POST['receiver']
-        user = User.objects.get(username=receiver)
-        send_mail("Bechneho:New Message Received",receiver,from_email=settings.EMAIL_HOST_USER,recipient_list=[user.email,])
-        print("Mail Delivered")
+    def post(self, request, *args, **kwargs):
+        receiver = request.POST.get('receiver')
+        sender = self.request.user
+        serializer = CreateMessageSerializer(data=self.request.data)
+        if serializer.is_valid():
+            try:
+                chatdialog = ChatDialog.objects.get(Q(receiver=receiver) | Q(receiver=sender) | Q(sender=sender) | Q(sender=receiver))
+                chatdialog.modified = datetime.now()
+                chatdialog.save()
+                serializer.save(chatdialog=chatdialog,sender=sender)
+                return Response(serializer.data)
+            except ChatDialog.DoesNotExist:
+                    receiver = User.objects.get(id=receiver)
+                    chatdialog=ChatDialog.objects.create(sender=sender,receiver=receiver,modified=datetime.now())
+                    serializer.save(chatdialog=chatdialog,sender=sender)
+                    return Response(serializer.data)
+        else:
+            return Response({
+                'status': False,
+                'Detail': 'Invalid Data',
+            })
 
-
-
-
-class MessageUserlist(ListAPIView):
-    serializer_class = MessageUserSerializer
+class ChatDialogView(ListAPIView):
+    '''
+    This endpoint list all the chat history or heads of a user.User requesting chat dialogs must be authenticated.So,pass in authentication token as authorization
+    header.
+    '''
+    serializer_class = ChatDialogSerializer
     permission_classes = [IsAuthenticated,]
+
     def get_queryset(self):
-        user = self.request.user.id
-        messages= Message.objects.filter(sender_id=user) | Message.objects.filter(receiver_id=user)
-        try:
-            return messages['sender']
-        except TypeError:
-            print(messages.values_list('sender','receiver'))
-        return None
+        user = self.request.user
+        return ChatDialog.objects.filter(Q(sender=user)|Q(receiver=user))
+

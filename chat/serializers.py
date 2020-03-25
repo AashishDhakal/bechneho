@@ -1,28 +1,25 @@
 from rest_framework import serializers
-from chat.models import Message
+from chat.models import Message,ChatDialog
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
 class MessageSerializer(serializers.ModelSerializer):
-    sender = serializers.SlugRelatedField(many=False, slug_field='username', queryset=User.objects.all())
-    receiver = serializers.SlugRelatedField(many=False, slug_field='username', queryset=User.objects.all())
-
     class Meta:
         model = Message
-        fields = ['sender', 'receiver', 'message', 'timestamp']
+        fields = ['id','chatdialog','sender', 'message', 'timestamp']
 
 class CreateMessageSerializer(serializers.ModelSerializer):
-    receiver = serializers.SlugRelatedField(many=False, slug_field='username', queryset=User.objects.all())
+    receiver = serializers.CharField(read_only=True)
 
     class Meta:
         model = Message
         fields = ['receiver', 'message', 'timestamp']
 
-class MessageUserSerializer(serializers.ModelSerializer):
-    sender = serializers.SlugRelatedField(many=False, slug_field='username', queryset=User.objects.all())
-    receiver = serializers.SlugRelatedField(many=False, slug_field='username', queryset=User.objects.all())
+class ChatDialogSerializer(serializers.ModelSerializer):
+    receiver = serializers.StringRelatedField()
+    sender = serializers.StringRelatedField()
 
     class Meta:
-        model = Message
-        fields = ['sender', 'receiver']
+        model = ChatDialog
+        fields = '__all__'
