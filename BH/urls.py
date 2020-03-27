@@ -22,6 +22,7 @@ urlpatterns = [
     path('api/fileupload/',ImageCreate.as_view(),name="fileupload"),
     path('api/chat/',include('chat.urls')),
     path('docs/', SwaggerView.as_view()),
+    path('privacy/',privacy)
 ] + static(settings.MEDIA_URL,document_root = settings.MEDIA_ROOT)
 
 urlpatterns += router.urls
