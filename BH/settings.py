@@ -104,8 +104,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'BH.wsgi.application'
 
+WSGI_APPLICATION = 'BH.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
@@ -159,6 +159,7 @@ MEDIA_URL = '/media/'
 STATICFILES_DIRS = [
     STATIC_DIR,
 ]
+
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
