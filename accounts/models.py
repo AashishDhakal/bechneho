@@ -5,7 +5,6 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 
-
 class UserManager(BaseUserManager):
     use_in_migrations = True
 
@@ -42,6 +41,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(_('email address'), unique=True)
     mobile = models.CharField(max_length=20, null=True, blank=True)
     firebase_id = models.CharField(max_length=50,null=True,blank=True)
+    profile_pic = models.TextField(blank=True,default="/media/default/pimage.jpg")
     is_staff = models.BooleanField(
         _('staff status'),
         default=False,
