@@ -8,6 +8,8 @@ from rest_framework.generics import ListAPIView,CreateAPIView,RetrieveUpdateDest
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import render
 from fcm_django.models import FCMDevice
+from .serializers import CreateFCMDeviceSerializer
+from rest_framework import status
 
 from .models import User
 from .permissions import StaffPermission
