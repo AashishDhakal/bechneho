@@ -7,6 +7,7 @@ from rest_framework_swagger import renderers
 from rest_framework.generics import ListAPIView,CreateAPIView,RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import render
+from fcm_django.models import FCMDevice
 
 from .models import User
 from .permissions import StaffPermission
@@ -85,3 +86,21 @@ class SwaggerView(APIView):
 
 def privacy(request):
     return render(request,'privacy.html', {})
+
+class FCMDeviceCreateView(APIView):
+
+    def post(self, request,*args,**kwargs):
+        device_id = request.data.get('device_id')
+        print(request.data)
+        try:
+            fcmobject = FCMDevice.objects.get(device_id=device_id)
+            data = request.data
+            data = data.copy()
+            serializer = CreateFCMDeviceSerializer(fcmobject,data=data)
+        except FCMDevice.DoesNotExist:
+            data = request.data
+            serializer = CreateFCMDeviceSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

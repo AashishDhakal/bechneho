@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'marketplace',
     'chat',
     'rest_framework_swagger',
+    'fcm_django',
 ]
 
 REST_FRAMEWORK = {
@@ -160,6 +161,18 @@ STATICFILES_DIRS = [
     STATIC_DIR,
 ]
 
+FCM_DJANGO_SETTINGS = {
+        "APP_VERBOSE_NAME": "FCM DEVICES",
+         # default: _('FCM Django')
+        "FCM_SERVER_KEY": "AAAAoktPiGk:APA91bHlOjZLwJKP6eiFilOv8gwrTAANZ51Z9K-WiajJMsve_PPGVRySaZUqy_IYY5NuC6PG4y2w0hKab-u37WTESItgBpaGH48auPAOYSMw7zgJwnFjVLKM9L3BtoXKDru-HPhb4OAJ",
+         # true if you want to have only one active device per registered user at a time
+         # default: False
+        "ONE_DEVICE_PER_USER": False,
+         # devices to which notifications cannot be sent,
+         # are deleted upon receiving error response from FCM
+         # default: False
+        "DELETE_INACTIVE_DEVICES": False,
+}
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 

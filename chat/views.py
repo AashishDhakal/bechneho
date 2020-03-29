@@ -64,3 +64,12 @@ class ChatDialogView(ListAPIView):
         user = self.request.user
         return ChatDialog.objects.filter(Q(sender=user)|Q(receiver=user))
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = ChatDialogSerializer(queryset,many=True)
+        serialized_data = serializer.data
+        if serialized_data[0]['sender']['pk'] == self.request.user.id:
+            serialized_data[0]['user'] = serialized_data[0]['receiver']
+        else:
+            serialized_data[0]['user'] = serialized_data[0]['sender']
+        return Response(serialized_data)

@@ -14,6 +14,14 @@ class ChatDialog(models.Model):
     def __str__(self):
         return f'{self.sender.first_name} & {self.receiver.first_name}'
 
+    @property
+    def user(self):
+        return None
+
+    @user.setter
+    def user(self, value):
+        pass
+
 class Message(models.Model):
     chatdialog = models.ForeignKey(ChatDialog, on_delete=models.CASCADE, related_name='chatdialog')
     message = models.TextField()

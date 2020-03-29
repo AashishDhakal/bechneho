@@ -4,6 +4,12 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('pk','first_name', 'last_name','profile_pic')
+
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
@@ -17,9 +23,10 @@ class CreateMessageSerializer(serializers.ModelSerializer):
         fields = ['receiver', 'message', 'timestamp']
 
 class ChatDialogSerializer(serializers.ModelSerializer):
-    receiver = serializers.StringRelatedField()
-    sender = serializers.StringRelatedField()
+    receiver = UserSerializer()
+    sender = UserSerializer()
+    user = serializers.JSONField()
 
     class Meta:
         model = ChatDialog
-        fields = '__all__'
+        fields = ['sender','receiver','modified','id','user']
