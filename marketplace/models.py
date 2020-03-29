@@ -55,35 +55,35 @@ class Advertisement(models.Model):
     image9 = models.TextField(blank=True)
     image10 = models.TextField(blank=True)
     negotiable = models.CharField(max_length=10,choices=(
-        ('y','Yes'),
-        ('n','No')),blank=True)
+        ('Yes','Yes'),
+        ('No','No')),blank=True)
     condition = models.CharField(max_length=30,choices=(
-        ('bn','Brand New'),
-        ('ln','Like New(Used Few Times)'),
-        ('e','Excellent'),
-        ('g','Good'),
-        ('nw','Not Working')),blank=True)
+        ('Brand New','Brand New'),
+        ('Like New(Used Few Times)','Like New(Used Few Times)'),
+        ('Excellent','Excellent'),
+        ('Good','Good'),
+        ('Not Working','Not Working')),blank=True)
     used_for = models.CharField(max_length=100,blank=True)
     home_delivery = models.CharField(max_length=30,choices=(
-        ('a','Available'),
-        ('na','Not Available')),blank=True)
+        ('Available','Available'),
+        ('Not Available','Not Available')),blank=True)
     delivery_areas = models.CharField(max_length=100,choices=(
-        ('wa','Within my area'),
-        ('wc','Within my city'),
-        ('np','All over Nepal')),blank=True)
+        ('Within My Area','Within my area'),
+        ('Within My City','Within my city'),
+        ('All over Nepal','All over Nepal')),blank=True)
     delivery_charges = models.CharField(max_length=30,blank=True)
     warranty_type = models.CharField(max_length=30,choices=(
-        ('s','Seller/Shop'),
-        ('m','Manufacturer/Importer'),
-        ('n','No Warranty')),blank=True)
+        ('Seller/Shop','Seller/Shop'),
+        ('Manufacuturer/Importer','Manufacturer/Importer'),
+        ('No Warranty','No Warranty')),blank=True)
     warranty_period = models.CharField(max_length=100,blank=True)
     warranty_includes = models.CharField(max_length=300,blank=True)
     featured = models.CharField(max_length=30,choices=(
-        ('y','Yes'),
-        ('n','No')),blank=True,default='n')
+        ('Yes','Yes'),
+        ('No','No')),blank=True,default='n')
     ad_status = models.CharField(max_length=30,choices=(
-        ('a','Available'),
-        ('s','Sold Out')),blank=True,default='a')
+        ('Available','Available'),
+        ('Sold Out','Sold Out')),blank=True,default='a')
     views = models.BigIntegerField(default=0)
     location = JSONField(default=None)
 
