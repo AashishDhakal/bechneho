@@ -55,6 +55,8 @@ class Register(CreateAPIView):
         instance = serializer.save()
         instance.set_password(instance.password)
         instance.save()
+        user = User.objects.get(id=instance.id)
+        user.email_user('Activate Your BechneHo Account', 'URL')
 
 class SwaggerRenderer(renderers.SwaggerUIRenderer):
     template = 'swagger_template.html'

@@ -115,8 +115,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'bechnehodb',
-        'USER': 'entrancesewadbadmin',
-        'PASSWORD': 'Pas$w0rD@entrance_Sewa@DB',
+        'USER': 'postgres',
+        'PASSWORD': 'helloaashish321',
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -180,11 +180,12 @@ FCM_DJANGO_SETTINGS = {
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
-EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'aashishdhakal7@gmail.com'
-EMAIL_HOST_PASSWORD = 'digit@lh@cked3210'
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
+EMAIL_HOST = 'smtp.yandex.com'
+EMAIL_PORT = 465
+EMAIL_HOST_USER = 'noreply@bechneho.com'
+EMAIL_HOST_PASSWORD = 'bechneho@20'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 AUTH_USER_MODEL = 'accounts.User'
