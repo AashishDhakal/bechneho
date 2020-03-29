@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.text import slugify
 from django.contrib.auth import get_user_model
+from django.contrib.postgres.fields import JSONField
 
 User = get_user_model()
 # Create your models here.
@@ -84,6 +85,7 @@ class Advertisement(models.Model):
         ('a','Available'),
         ('s','Sold Out')),blank=True,default='a')
     views = models.BigIntegerField(default=0)
+    location = JSONField(default=None)
 
     def save(self,*args,**kwargs):
         super(Advertisement, self).save(*args, **kwargs)
