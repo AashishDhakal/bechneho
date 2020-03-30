@@ -39,3 +39,9 @@ class UserAdmin(BaseUserAdmin):
 
 admin.site.register(User,UserAdmin)
 
+class UserTokenAdmin(admin.ModelAdmin):
+    list_display = ('user','token')
+    search_fields = ('user',)
+    list_filter = ('user',)
+
+admin.site.register(Token,UserTokenAdmin)

@@ -49,7 +49,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
     is_active = models.BooleanField(
         _('active'),
-        default=True,
+        default=False,
         help_text=_(
             'Designates whether this user should be treated as active. '
             'Unselect this instead of deleting accounts.'
@@ -87,3 +87,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
+
+class Token(models.Model):
+    user = models.OneToOneField(User,on_delete=models.CASCADE)
+    token = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f'Verification Token For {self.user.id} '

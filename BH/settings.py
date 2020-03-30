@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'chat',
     'rest_framework_swagger',
     'fcm_django',
+    'six'
 ]
 
 REST_FRAMEWORK = {
@@ -115,8 +116,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'bechnehodb',
-        'USER': 'postgres',
-        'PASSWORD': 'helloaashish321',
+        'USER': 'entrancesewadbadmin',
+        'PASSWORD': 'Pas$w0rD@entrance_Sewa@DB',
         'HOST': 'localhost',
         'PORT': '5432',
     }

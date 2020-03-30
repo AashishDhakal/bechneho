@@ -10,6 +10,12 @@ from django.shortcuts import render
 from fcm_django.models import FCMDevice
 from .serializers import CreateFCMDeviceSerializer
 from rest_framework import status
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.encoding import force_bytes, force_text
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.template.loader import render_to_string
+from .tokens import account_activation_token
+from .models import Token
 
 from .models import User
 from .permissions import StaffPermission
@@ -56,7 +62,56 @@ class Register(CreateAPIView):
         instance.set_password(instance.password)
         instance.save()
         user = User.objects.get(id=instance.id)
-        user.email_user('Activate Your BechneHo Account', 'URL')
+        current_site = get_current_site(self.request)
+        token = account_activation_token.make_token(user)
+        message = render_to_string('acc_active_email.html', {
+            'user': user,
+            'domain': current_site.domain,
+            'token':token,
+        })
+        tokenobject=Token.objects.create(user=user,token=token)
+        tokenobject.save()
+        user.email_user('Activate Your BechneHo Account',message=message)
+
+class ResendVerificationEmail(CreateAPIView):
+
+    '''
+    Send a post request with user email requesting a verification email again.
+    parameter for posting user email is
+    :parameter
+    useremail
+    '''
+
+    def post(self, request, *args, **kwargs):
+        useremail=self.request.POST.get('useremail')
+        user = User.objects.get(email=useremail)
+        current_site = get_current_site(self.request)
+        savedtoken = Token.objects.get(user=user)
+        message = render_to_string('acc_resend_email.html', {
+            'user': user,
+            'domain': current_site.domain,
+            'token': savedtoken.token,
+        })
+        user.email_user('Activate Your BechneHo Account',message=message)
+
+class ActivateUserView(APIView):
+
+    def get(self,request,*args,**kwargs):
+        token = self.request.query_params.get('token')
+        print(token)
+        savedtoken = None
+        try:
+            savedtoken = Token.objects.get(token=token)
+            user = savedtoken.user
+        except(TypeError, ValueError, OverflowError, Token.DoesNotExist):
+            user = None
+        if user is not None and token==savedtoken.token:
+            user.is_active = True
+            user.save()
+            savedtoken.delete()
+            return Response('Thank you for your email confirmation. Now you can login your account.')
+        else:
+            return Response('Activation link is invalid!')
 
 class SwaggerRenderer(renderers.SwaggerUIRenderer):
     template = 'swagger_template.html'
