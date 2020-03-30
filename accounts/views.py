@@ -73,7 +73,7 @@ class Register(CreateAPIView):
         tokenobject.save()
         user.email_user('Activate Your BechneHo Account',message=message)
 
-class ResendVerificationEmail(CreateAPIView):
+class ResendVerificationEmail(APIView):
     '''
     Send a post request with user email requesting a verification email again.
     parameter for posting user email is
