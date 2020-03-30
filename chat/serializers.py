@@ -28,7 +28,8 @@ class ChatDialogSerializer(serializers.ModelSerializer):
     receiver = UserSerializer()
     sender = UserSerializer()
     user = serializers.JSONField()
+    latest_message = serializers.JSONField()
 
     class Meta:
         model = ChatDialog
-        fields = ['sender','receiver','modified','id','user']
+        fields = ['sender','receiver','modified','id','user','latest_message']

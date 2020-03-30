@@ -22,6 +22,14 @@ class ChatDialog(models.Model):
     def user(self, value):
         pass
 
+    @property
+    def latest_message(self):
+        return None
+
+    @latest_message.setter
+    def latest_message(self, value):
+        pass
+
 class Message(models.Model):
     chatdialog = models.ForeignKey(ChatDialog, on_delete=models.CASCADE, related_name='chatdialog')
     message = models.TextField(blank=True)

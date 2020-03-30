@@ -10,6 +10,7 @@ from datetime import datetime
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 User = get_user_model()
+from fcm_django.models import FCMDevice
 
 class MessageDetails(ListAPIView):
     '''
@@ -31,18 +32,33 @@ class CreateMessage(APIView):
     permission_classes = [IsAuthenticated,]
 
     def post(self, request, *args, **kwargs):
-        receiver = request.POST.get('receiver')
+        receiverid = request.POST.get('receiver')
+        message = request.POST.get('message',False)
+        attachment = request.POST.get('attachment',False)
         sender = self.request.user
         serializer = CreateMessageSerializer(data=self.request.data)
         if serializer.is_valid():
             try:
-                chatdialog = ChatDialog.objects.get(Q(receiver=receiver) | Q(receiver=sender) | Q(sender=sender) | Q(sender=receiver))
+                receiver = User.objects.get(id=receiverid)
+                chatdialog = ChatDialog.objects.get(Q(receiver=receiver,sender=sender) or Q(sender=receiver,receiver=sender))
                 chatdialog.modified = datetime.now()
                 chatdialog.save()
                 serializer.save(chatdialog=chatdialog,sender=sender)
+                user = User.objects.get(id=receiverid)
+                sender = User.objects.get(id=self.request.user.id)
+                title = f'{sender.first_name} {sender.last_name}'
+                try:
+                    device = FCMDevice.objects.get(device_id=user.firebase_id)
+                    if message:
+                        body = message
+                    else:
+                        body = "New Attachment Received"
+                    device.send_message(title=title,body=body)
+                except FCMDevice.DoesNotExist:
+                    pass
                 return Response(serializer.data)
             except ChatDialog.DoesNotExist:
-                    receiver = User.objects.get(id=receiver)
+                    receiver = User.objects.get(id=receiverid)
                     chatdialog=ChatDialog.objects.create(sender=sender,receiver=receiver,modified=datetime.now())
                     serializer.save(chatdialog=chatdialog,sender=sender)
                     return Response(serializer.data)
@@ -69,10 +85,16 @@ class ChatDialogView(ListAPIView):
         serializer = ChatDialogSerializer(queryset,many=True)
         serialized_data = serializer.data
         try:
-            if serialized_data[0]['sender']['pk'] == self.request.user.id:
-                serialized_data[0]['user'] = serialized_data[0]['receiver']
-            else:
-                serialized_data[0]['user'] = serialized_data[0]['sender']
+            for data in range(len(serialized_data)):
+                print(data)
+                if serialized_data[data]['sender']['pk'] == self.request.user.id:
+                    serialized_data[data]['user'] = serialized_data[data]['receiver']
+                    chatdialogid=serialized_data[data]['id']
+                    serialized_data[data]['latest_message']=Message.objects.filter(chatdialog=chatdialogid).order_by('-timestamp')[0].message
+                else:
+                    serialized_data[data]['user'] = serialized_data[0]['sender']
+                    chatdialogid=serialized_data[data]['id']
+                    serialized_data[data]['latest_message']=Message.objects.filter(chatdialog=chatdialogid).order_by('-timestamp')[0].message
             return Response(serialized_data)
         except IndexError:
             return Response('You have no conversations.')
