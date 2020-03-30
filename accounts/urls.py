@@ -8,5 +8,5 @@ urlpatterns = [
     path('register/', Register.as_view()),
     path('fcm/', FCMDeviceCreateView.as_view()),
     path('activate/',ActivateUserView.as_view(), name='activate'),
-    path('resendverificationemail/',ResendVerificationEmail.as_view(),name='resend')
+    path('resendverificationemail/',ResendVerificationEmail.as_view())
 ]

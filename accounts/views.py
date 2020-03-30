@@ -74,25 +74,30 @@ class Register(CreateAPIView):
         user.email_user('Activate Your BechneHo Account',message=message)
 
 class ResendVerificationEmail(CreateAPIView):
-
     '''
     Send a post request with user email requesting a verification email again.
     parameter for posting user email is
     :parameter
     useremail
     '''
-
     def post(self, request, *args, **kwargs):
         useremail=self.request.POST.get('useremail')
-        user = User.objects.get(email=useremail)
-        current_site = get_current_site(self.request)
-        savedtoken = Token.objects.get(user=user)
-        message = render_to_string('acc_resend_email.html', {
-            'user': user,
-            'domain': current_site.domain,
-            'token': savedtoken.token,
-        })
-        user.email_user('Activate Your BechneHo Account',message=message)
+        try:
+            user = User.objects.get(email=useremail)
+        except User.DoesNotExist:
+            user = None
+        if user is not None:
+            current_site = get_current_site(self.request)
+            savedtoken = Token.objects.get(user=user)
+            message = render_to_string('acc_active_email.html', {
+                'user': user,
+                'domain': current_site.domain,
+                'token': savedtoken.token,
+            })
+            user.email_user('Activate Your BechneHo Account',message=message)
+            return Response("Resend Successful.Please check your email.")
+        else:
+            return Response("User with provided email doesnot exist.")
 
 class ActivateUserView(APIView):
 
