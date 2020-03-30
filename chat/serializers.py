@@ -18,6 +18,7 @@ class MessageSerializer(serializers.ModelSerializer):
 class CreateMessageSerializer(serializers.ModelSerializer):
     receiver = serializers.CharField(read_only=True)
     attachment = serializers.CharField(required=False)
+    message = serializers.CharField(required=False)
 
     class Meta:
         model = Message

@@ -24,7 +24,7 @@ class ChatDialog(models.Model):
 
 class Message(models.Model):
     chatdialog = models.ForeignKey(ChatDialog, on_delete=models.CASCADE, related_name='chatdialog')
-    message = models.TextField()
+    message = models.TextField(blank=True)
     attachment = models.TextField(blank=True)
     sender = models.ForeignKey(User,on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
