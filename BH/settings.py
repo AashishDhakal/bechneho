@@ -163,6 +163,8 @@ CORS_ORIGIN_WHITELIST = [
     'http://127.0.0.1:8000',
     'http://test.bechneho.com',
     'http://bechneho.com',
+    '206.189.142.112',
+    '157.230.37.202',
 ]
 
 
