@@ -103,7 +103,6 @@ class ActivateUserView(APIView):
 
     def get(self,request,*args,**kwargs):
         token = self.request.query_params.get('token')
-        print(token)
         savedtoken = None
         try:
             savedtoken = Token.objects.get(token=token)
