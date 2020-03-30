@@ -17,10 +17,11 @@ class MessageSerializer(serializers.ModelSerializer):
 
 class CreateMessageSerializer(serializers.ModelSerializer):
     receiver = serializers.CharField(read_only=True)
+    attachment = serializers.CharField(required=False)
 
     class Meta:
         model = Message
-        fields = ['receiver', 'message', 'timestamp']
+        fields = ['receiver', 'message', 'timestamp','attachment']
 
 class ChatDialogSerializer(serializers.ModelSerializer):
     receiver = UserSerializer()
