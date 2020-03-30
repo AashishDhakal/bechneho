@@ -40,7 +40,7 @@ class CreateMessage(APIView):
             try:
                 receiver = User.objects.get(id=receiverid)
                 sender = User.objects.get(id=self.request.user.id)
-                chatdialog = ChatDialog.objects.get(Q(receiver=receiver),Q(sender=sender) | Q(sender=receiver),Q(receiver=sender))
+                chatdialog = ChatDialog.objects.get((Q(receiver=receiver) & Q(sender=sender)) | (Q(sender=receiver) & Q(receiver=sender)))
                 chatdialog.modified = datetime.now()
                 chatdialog.save()
                 serializer.save(chatdialog=chatdialog,sender=sender)
