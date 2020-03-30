@@ -80,10 +80,10 @@ class Advertisement(models.Model):
     warranty_includes = models.CharField(max_length=300,blank=True)
     featured = models.CharField(max_length=30,choices=(
         ('Yes','Yes'),
-        ('No','No')),blank=True,default='n')
+        ('No','No')),blank=True,default='No')
     ad_status = models.CharField(max_length=30,choices=(
         ('Available','Available'),
-        ('Sold Out','Sold Out')),blank=True,default='a')
+        ('Sold Out','Sold Out')),blank=True,default='Available')
     views = models.BigIntegerField(default=0)
     location = JSONField(default=None)
 
