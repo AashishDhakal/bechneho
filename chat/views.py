@@ -68,8 +68,11 @@ class ChatDialogView(ListAPIView):
         queryset = self.get_queryset()
         serializer = ChatDialogSerializer(queryset,many=True)
         serialized_data = serializer.data
-        if serialized_data[0]['sender']['pk'] == self.request.user.id:
-            serialized_data[0]['user'] = serialized_data[0]['receiver']
-        else:
-            serialized_data[0]['user'] = serialized_data[0]['sender']
-        return Response(serialized_data)
+        try:
+            if serialized_data[0]['sender']['pk'] == self.request.user.id:
+                serialized_data[0]['user'] = serialized_data[0]['receiver']
+            else:
+                serialized_data[0]['user'] = serialized_data[0]['sender']
+            return Response(serialized_data)
+        except IndexError:
+            return Response('You have no conversations.')
