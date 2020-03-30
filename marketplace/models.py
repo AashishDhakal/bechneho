@@ -74,7 +74,7 @@ class Advertisement(models.Model):
     delivery_charges = models.CharField(max_length=30,blank=True)
     warranty_type = models.CharField(max_length=30,choices=(
         ('Seller/Shop','Seller/Shop'),
-        ('Manufacuturer/Importer','Manufacturer/Importer'),
+        ('Manufacturer/Importer','Manufacturer/Importer'),
         ('No Warranty','No Warranty')),blank=True)
     warranty_period = models.CharField(max_length=100,blank=True)
     warranty_includes = models.CharField(max_length=300,blank=True)
