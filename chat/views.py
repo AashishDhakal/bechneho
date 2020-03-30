@@ -35,17 +35,16 @@ class CreateMessage(APIView):
         receiverid = request.POST.get('receiver')
         message = request.POST.get('message',False)
         attachment = request.POST.get('attachment',False)
-        sender = self.request.user
         serializer = CreateMessageSerializer(data=self.request.data)
         if serializer.is_valid():
             try:
                 receiver = User.objects.get(id=receiverid)
-                chatdialog = ChatDialog.objects.get(Q(receiver=receiver,sender=sender) or Q(sender=receiver,receiver=sender))
+                sender = User.objects.get(id=self.request.user.id)
+                chatdialog = ChatDialog.objects.get(Q(receiver=receiver),Q(sender=sender) | Q(sender=receiver),Q(receiver=sender))
                 chatdialog.modified = datetime.now()
                 chatdialog.save()
                 serializer.save(chatdialog=chatdialog,sender=sender)
                 user = User.objects.get(id=receiverid)
-                sender = User.objects.get(id=self.request.user.id)
                 title = f'{sender.first_name} {sender.last_name}'
                 try:
                     device = FCMDevice.objects.get(device_id=user.firebase_id)
@@ -59,6 +58,7 @@ class CreateMessage(APIView):
                 return Response(serializer.data)
             except ChatDialog.DoesNotExist:
                     receiver = User.objects.get(id=receiverid)
+                    sender = User.objects.get(id=self.request.user.id)
                     chatdialog=ChatDialog.objects.create(sender=sender,receiver=receiver,modified=datetime.now())
                     serializer.save(chatdialog=chatdialog,sender=sender)
                     return Response(serializer.data)
@@ -86,7 +86,6 @@ class ChatDialogView(ListAPIView):
         serialized_data = serializer.data
         try:
             for data in range(len(serialized_data)):
-                print(data)
                 if serialized_data[data]['sender']['pk'] == self.request.user.id:
                     serialized_data[data]['user'] = serialized_data[data]['receiver']
                     chatdialogid=serialized_data[data]['id']

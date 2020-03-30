@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'chat',
     'rest_framework_swagger',
     'fcm_django',
-    'six'
+    'six',
+    'corsheaders',
 ]
 
 REST_FRAMEWORK = {
@@ -154,6 +155,15 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:8000',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:8000',
+    'http://test.bechneho.com',
+    'http://bechneho.com',
+]
 
 
 # Static files (CSS, JavaScript, Images)
