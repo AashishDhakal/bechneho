@@ -116,7 +116,7 @@ class FeaturedAdvertisementsView(ListAPIView):
     serializer_class = AdvertisementSerializer
 
     def get_queryset(self):
-        return Advertisement.objects.filter(featured='y')
+        return Advertisement.objects.filter(featured='Yes')
 
 class RecentAdvertisementsView(ListAPIView):
     '''
