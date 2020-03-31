@@ -181,7 +181,7 @@ STATICFILES_DIRS = [
 FCM_DJANGO_SETTINGS = {
         "APP_VERBOSE_NAME": "FCM DEVICES",
          # default: _('FCM Django')
-        "FCM_SERVER_KEY": "AAAAoktPiGk:APA91bHlOjZLwJKP6eiFilOv8gwrTAANZ51Z9K-WiajJMsve_PPGVRySaZUqy_IYY5NuC6PG4y2w0hKab-u37WTESItgBpaGH48auPAOYSMw7zgJwnFjVLKM9L3BtoXKDru-HPhb4OAJ",
+        "FCM_SERVER_KEY": "AAAAG_w9Oys:APA91bGwsvV2fqVTHkhzNiAToJcNPBEt1wPP9vX48FWwo8tP9beet7MSdlM_Iplocyts2fqqfTEhnmMmXd76EOg3i4BeKkGHRRuJyfn-7jpmZqQVQtHuRVIiSSydU1bm6_HGkw0gNBrf",
          # true if you want to have only one active device per registered user at a time
          # default: False
         "ONE_DEVICE_PER_USER": False,

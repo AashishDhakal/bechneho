@@ -68,6 +68,29 @@ class CreateMessage(APIView):
                 'Detail': 'Invalid Data',
             })
 
+class CheckChatDialog(APIView):
+    '''
+    This Endpoint checks if two users have chat dialog or not.If yes returns a chat dialog if not creates and returns chat dialog.
+    Post authentication token and receiver id.
+    '''
+    permission_classes = [IsAuthenticated,]
+
+    def post(self, request, *args, **kwargs):
+        receiverid = request.POST.get('receiver')
+        try:
+            receiver = User.objects.get(id=receiverid)
+            sender = User.objects.get(id=self.request.user.id)
+            chatdialog = ChatDialog.objects.get((Q(receiver=receiver) & Q(sender=sender)) | (Q(sender=receiver) & Q(receiver=sender)))
+            chatdialog.modified = datetime.now()
+            chatdialog.save()
+            return Response(chatdialog.id)
+        except ChatDialog.DoesNotExist:
+            receiver = User.objects.get(id=receiverid)
+            sender = User.objects.get(id=self.request.user.id)
+            chatdialog = ChatDialog.objects.create(sender=sender, receiver=receiver, modified=datetime.now())
+            return Response(chatdialog.id)
+
+
 class ChatDialogView(ListAPIView):
     '''
     This endpoint list all the chat history or heads of a user.User requesting chat dialogs must be authenticated.So,pass in authentication token as authorization
@@ -91,7 +114,7 @@ class ChatDialogView(ListAPIView):
                     chatdialogid=serialized_data[data]['id']
                     serialized_data[data]['latest_message']=Message.objects.filter(chatdialog=chatdialogid).order_by('-timestamp')[0].message
                 else:
-                    serialized_data[data]['user'] = serialized_data[0]['sender']
+                    serialized_data[data]['user'] = serialized_data[data]['sender']
                     chatdialogid=serialized_data[data]['id']
                     serialized_data[data]['latest_message']=Message.objects.filter(chatdialog=chatdialogid).order_by('-timestamp')[0].message
             return Response(serialized_data)
