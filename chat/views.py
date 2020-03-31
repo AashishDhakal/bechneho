@@ -48,11 +48,19 @@ class CreateMessage(APIView):
                 title = f'{sender.first_name} {sender.last_name}'
                 try:
                     device = FCMDevice.objects.get(device_id=user.firebase_id)
+                    data = {
+                        'chatdialogid':chatdialog.id,
+                        'receiverid':receiverid,
+                        'click_action':"FLUTTER_NOTIFICATION_CLICK",
+                        'sound':"default",
+                        'status':"done",
+                        'screen':"screenA"
+                    }
                     if message:
                         body = message
                     else:
                         body = "New Attachment Received"
-                    device.send_message(title=title,body=body)
+                    device.send_message(title=title,body=body,data=data)
                 except FCMDevice.DoesNotExist:
                     pass
                 return Response(serializer.data)
@@ -60,7 +68,27 @@ class CreateMessage(APIView):
                     receiver = User.objects.get(id=receiverid)
                     sender = User.objects.get(id=self.request.user.id)
                     chatdialog=ChatDialog.objects.create(sender=sender,receiver=receiver,modified=datetime.now())
+                    chatdialog.save()
                     serializer.save(chatdialog=chatdialog,sender=sender)
+                    user = User.objects.get(id=receiverid)
+                    title = f'{sender.first_name} {sender.last_name}'
+                    try:
+                        device = FCMDevice.objects.get(device_id=user.firebase_id)
+                        data = {
+                            'chatdialogid': chatdialog.id,
+                            'receiverid': receiverid,
+                            'click_action': "FLUTTER_NOTIFICATION_CLICK",
+                            'sound': "default",
+                            'status': "done",
+                            'screen': "screenA"
+                        }
+                        if message:
+                            body = message
+                        else:
+                            body = "New Attachment Received"
+                        device.send_message(title=title, body=body, data=data)
+                    except FCMDevice.DoesNotExist:
+                        pass
                     return Response(serializer.data)
         else:
             return Response({
@@ -83,13 +111,17 @@ class CheckChatDialog(APIView):
             chatdialog = ChatDialog.objects.get((Q(receiver=receiver) & Q(sender=sender)) | (Q(sender=receiver) & Q(receiver=sender)))
             chatdialog.modified = datetime.now()
             chatdialog.save()
-            return Response(chatdialog.id)
+            return Response({
+                "chatdialog":chatdialog.id,
+            })
         except ChatDialog.DoesNotExist:
             receiver = User.objects.get(id=receiverid)
             sender = User.objects.get(id=self.request.user.id)
             chatdialog = ChatDialog.objects.create(sender=sender, receiver=receiver, modified=datetime.now())
-            return Response(chatdialog.id)
-
+            chatdialog.save()
+            return Response({
+                "chatdialog":chatdialog.id,
+            })
 
 class ChatDialogView(ListAPIView):
     '''

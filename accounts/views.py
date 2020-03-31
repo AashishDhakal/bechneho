@@ -18,7 +18,7 @@ from .tokens import account_activation_token
 from .models import Token
 
 from .models import User
-from .permissions import StaffPermission
+from .permissions import StaffPermission,IsUpdateProfile
 from .serializers import UserSerializer
 
 
@@ -48,6 +48,12 @@ class UserProfile(viewsets.ModelViewSet):
         if self.request.user.is_staff:
             return User.objects.all()
         return User.objects.filter(pk=self.request.user.pk)
+
+    def get_permissions(self):
+        if self.request.method == 'put':
+            self.permission_classes =[IsAuthenticated,IsUpdateProfile,]
+        else:
+            self.permission_classes=[IsAuthenticated,]
 
 
 

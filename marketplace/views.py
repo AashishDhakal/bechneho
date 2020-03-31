@@ -8,6 +8,7 @@ from .serializers import *
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import FileUploadParser
+from accounts.permissions import IsUpdateProfile,IsOwnerOrReadOnly
 
 class ImageCreate(APIView):
     '''
@@ -173,4 +174,11 @@ class AdvertisementViewset(ModelViewSet):
     def get_queryset(self):
         if self.request.user.is_staff:
             return Advertisement.objects.all()
-        return Advertisement.objects.filter(pk=self.request.user.pk)
+        return Advertisement.objects.filter(user_id=self.request.user.pk)
+
+    def get_permissions(self):
+        if self.request.method =='put' or self.request.method =='delete':
+            self.permission_classes =[IsAuthenticated,IsOwnerOrReadOnly]
+        else:
+            self.permission_classes=[IsAuthenticated,]
+
